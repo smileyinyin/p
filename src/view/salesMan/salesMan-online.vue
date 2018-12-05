@@ -1,0 +1,139 @@
+
+<template>
+     <div class="settle">
+        <Card>
+        <p slot="title">
+          线上商家流水
+        </p>
+      <div>
+        <div class="flex-left">
+           <Input  placeholder="请输入交易流水号" style="width: 200px" v-model="order_son_uuid"/>
+           <Input  placeholder="请输入业务员名称或手机号" style="width: 250px;margin-left:10px;" v-model="mobile"/>
+           <Input  placeholder="请输入商家名称" style="width: 200px;margin-left:10px;" v-model="goods_name"/>
+           <Input  placeholder="请输入会员手机号" style="width: 200px;margin-left:10px;" v-model="mobile"/>
+            <label style="margin-left:10px">
+                        <DatePicker  type="daterange" placement="bottom-end" placeholder="请选择核销时间" style="width:  200px; " v-model="date"></DatePicker>
+                          </label>
+
+             <Button type="primary"
+             icon="search" @click="getAll" style="margin-left:10px">
+                        搜索
+              </Button>
+          </div>
+               <div class="table text-right" style="margin-top:20px;">
+                 <Table  :columns="params" :data="data" stripe border></Table>
+                 <br>
+                  <Page :total="totalCounts" show-sizer
+              :page-size="pageSize" :current.sync="currentPage"
+              @on-change="getpage"
+              @on-page-size-change="changePageSize"
+        > </Page>
+                </div>
+
+      </div>
+
+        </Card>
+       </div>
+</template>
+<script>
+import { findProfitByRole } from '@/api/jy-water'
+import { formatDate } from '@/libs/util'
+export default {
+  name: 'settle',
+  data() {
+    return {
+      // 交易流水号
+      order_son_uuid: '',
+      // 业务员名称或手机号
+      mobile: '',
+      // 商家名称
+      goods_name: '',
+      // 会员手机号
+      // mobile: '',
+      currentPage: 1,
+      pageSize: 20,
+      totalCounts: 0,
+      date: '',
+      params: [
+        {
+          title: '序号',
+          type: 'index',
+          width: 60,
+          align: 'center'
+        },
+        {
+          title: '交易流水号',
+          key: 'order_son_uuid'
+        },
+        {
+          title: '业务员名称或手机号',
+          key: 'mobile'
+        },
+        {
+          title: '商家名称',
+          key: 'goods_name'
+        },
+
+        {
+          title: '会员手机号',
+          key: 'mobile'
+        },
+        {
+          title: '应收',
+          key: 'deal_price'
+        },
+        {
+          title: '实收',
+          key: 'real_price'
+        },
+        {
+          title: '利润',
+          key: 'real_money'
+        },
+        {
+          title: '核销时间',
+          key: 'create_time',
+          render: (h, params) => {
+            return h(
+              'span',
+              null,
+              formatDate(
+                new Date(params.row.create_time),
+                'yyyy-MM-dd hh:mm:ss'
+              )
+            )
+          }
+        }
+      ],
+      data: []
+    }
+  },
+  created() {
+    this.getAll()
+    // this.updataArray()
+  },
+  methods: {
+    getpage(page) {
+      this.currentPage = page
+    },
+    changePageSize(size) {
+      this.pageSize = size
+    },
+    getAll() {
+      // let that = this
+      // let starttime = formatDate(this.date[0], 'yyyy-MM-dd hh:mm:ss')
+      // let endtime = formatDate(this.date[1], 'yyyy-MM-dd hh:mm:ss')
+      findProfitByRole({
+        type: 2,
+        merchatType: 0,
+        userId: 2,
+        roleId: 2
+      }).then(res => {
+        this.data = res.data
+        // that.totalCounts = res.data.total
+        // that.updateArray()
+      })
+    }
+  }
+}
+</script>
